@@ -1,5 +1,5 @@
 
-# **Lead Scoring API Project **
+# Lead Scoring API Project 
 
 **Project Name:** MetroBlue ML Service
 ## **1. Introduction**
