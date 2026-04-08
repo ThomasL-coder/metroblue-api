@@ -1,0 +1,33 @@
+For First time activation:
+
+Command:
+-> cd C:\Users\Musrat\lead_score_API
+-> venv\Scripts\activate
+-> python train.py
+-> python -m uvicorn main:app --reload
+
+
+For next run after activation:
+-> venv\Scripts\activate
+-> pip install fastapi uvicorn
+-> python -m uvicorn main:app --reload
+
+Run: http://127.0.0.1:8000
+- http://127.0.0.1:8000/docs
+- POST /api/leads/score
+
+{
+  "name": "Musrat",
+  "source": "github",
+  "course_service": "Python",
+  "gender": "Female",
+  "location": "Darwin",
+  "created_at": "2026-03-20",
+  "contacted_at": "2026-03-21",
+  "referral_id": 2,
+  "notes": "Interested",
+  "phone": "0400000800"
+}
+
+Then Execute
+and  score will be shown

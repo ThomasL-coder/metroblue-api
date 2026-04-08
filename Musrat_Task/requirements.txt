@@ -1,0 +1,8 @@
+pandas
+numpy
+scikit-learn
+sqlalchemy
+pymysql
+joblib
+matplotlib
+pytest
