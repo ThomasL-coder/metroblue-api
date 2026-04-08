@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Overdue & Risk</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<h2>Overdue Payments & Risk</h2>
+
+<a href="index.html"> Back to Dashboard</a>
+
+<table id="overdueTable">
+    <thead>
+        <tr>
+            <th>Client</th>
+            <th>Amount</th>
+            <th>Risk</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+<script defer>
+const API_URL = "http://127.0.0.1:8000";
+const API_KEY = "secret123";
+
+async function loadOverdue() {
+    try {
+        const res = await fetch(`${API_URL}/api/revenue/overdue`, {
+            headers: {
+                "X-API-KEY": API_KEY
+            }
+        });
+
+        const result = await res.json();
+
+        console.log("Overdue API:", result);
+
+        let data = [];
+
+        
+        if (Array.isArray(result.data)) {
+            data = result.data;
+        } else {
+            console.error("Unexpected format:", result);
+        }
+
+        const table = document.querySelector("#overdueTable tbody");
+
+        if (!table) {
+            console.error("Table body not found!");
+            return;
+        }
+
+        table.innerHTML = "";
+
+        data.forEach(item => {
+
+    let color = "lightgreen";
+    if (item.days_overdue > 20) color = "#ffcccc";
+    else if (item.days_overdue > 10) color = "#fff3cd";
+
+    const client = item.client || "N/A";
+    const amount = item.amount_due ?? "N/A";
+    const risk = item.days_overdue > 20 ? "High"
+               : item.days_overdue > 10 ? "Medium"
+               : "Low";
+
+    const row = `
+        <tr style="background:${color}">
+            <td>${client}</td>
+            <td>${amount}</td>
+            <td>${risk}</td>
+        </tr>
+    `;
+    table.innerHTML += row;
+});
+
+    } catch (err) {
+        console.error("Overdue error:", err);
+    }
+}
+
+loadOverdue();
+</script>
+
+</body>
+</html>

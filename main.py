@@ -192,3 +192,13 @@ def retrain_models(api_key: str = Depends(verify_api_key)):
     return success_response(
         message="Retrain process started in background"
     )
+
+from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)

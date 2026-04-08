@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Revenue Forecast</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+</head>
+<body>
+
+<h2>Revenue Forecast</h2>
+
+<canvas id="chart" width="600" height="300"></canvas>
+
+<script defer>
+const API_URL = "http://127.0.0.1:8000";
+const API_KEY = "secret123";
+
+async function loadChart() {
+    try {
+        const res = await fetch(`${API_URL}/api/revenue/forecast?months=6`, {
+            headers: {
+                "X-API-KEY": API_KEY
+            }
+        });
+
+        const result = await res.json();
+        console.log("Forecast API:", result);
+
+        let data = [];
+
+        if (result.data && Array.isArray(result.data.results)) {
+            data = result.data.results;
+        }
+
+        const labels = data.map(d => d.month || d.date || "N/A");
+        const values = data.map(d => d.value || d.revenue || 0);
+
+        new Chart(document.getElementById("chart"), {
+            type: "line",
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: "Revenue Forecast",
+                    data: values
+                }]
+            }
+        });
+
+    } catch (err) {
+        console.error("Forecast error:", err);
+    }
+}
+
+loadChart();
+</script>
+
+</body>
+</html>
