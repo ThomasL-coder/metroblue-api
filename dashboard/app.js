@@ -1,7 +1,7 @@
 const API_URL = "http://127.0.0.1:8000";
 
 
-const API_KEY = "secret123";
+const API_KEY = "API KEY Private";
 
 async function loadLeads() {
     try {
