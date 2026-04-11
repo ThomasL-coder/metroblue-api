@@ -7,82 +7,100 @@
 <body>
 
 <h2>Overdue Payments & Risk</h2>
-
 <a href="index.html"> Back to Dashboard</a>
 
+<h3>Overdue Payments</h3>
 <table id="overdueTable">
     <thead>
         <tr>
             <th>Client</th>
             <th>Amount</th>
-            <th>Risk</th>
+            <th>Days Overdue</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+<h3>Client Risk</h3>
+<table id="riskTable">
+    <thead>
+        <tr>
+            <th>Client</th>
+            <th>Risk Level</th>
+            <th>Reason</th>
         </tr>
     </thead>
     <tbody></tbody>
 </table>
 
 <script defer>
-const API_URL = "http://127.0.0.1:8000";
-const API_KEY = "secret123";
+let API_URL = "http://127.0.0.1:8000";
+let API_KEY = sessionStorage.getItem("metroblue_api_key") || "";
 
-async function loadOverdue() {
+async function loadConfig() {
+  try {
+    const res = await fetch(`${API_URL}/api/config`);
+    const result = await res.json();
+    if (result?.data?.api_url) API_URL = result.data.api_url;
+  } catch (_) {}
+}
+
+function ensureApiKey() {
+  if (!API_KEY) {
+    API_KEY = window.prompt("Enter API key for MetroBlue dashboard:", "") || "";
+    sessionStorage.setItem("metroblue_api_key", API_KEY);
+  }
+}
+
+async function loadOverdueAndRisk() {
     try {
-        const res = await fetch(`${API_URL}/api/revenue/overdue`, {
-            headers: {
-                "X-API-KEY": API_KEY
-            }
+        const [overdueRes, riskRes] = await Promise.all([
+          fetch(`${API_URL}/api/revenue/overdue`, { headers: { "X-API-KEY": API_KEY } }),
+          fetch(`${API_URL}/api/clients/risk`, { headers: { "X-API-KEY": API_KEY } })
+        ]);
+
+        const overdueResult = await overdueRes.json();
+        const riskResult = await riskRes.json();
+
+        const overdueRows = Array.isArray(overdueResult?.data) ? overdueResult.data : [];
+        const riskRows = Array.isArray(riskResult?.data) ? riskResult.data : [];
+
+        const overdueTable = document.querySelector("#overdueTable tbody");
+        overdueTable.innerHTML = "";
+        overdueRows.forEach((item) => {
+            const row = `
+              <tr>
+                <td>${item.client || "N/A"}</td>
+                <td>${item.amount_due ?? "N/A"}</td>
+                <td>${item.days_overdue ?? "N/A"}</td>
+              </tr>
+            `;
+            overdueTable.innerHTML += row;
         });
 
-        const result = await res.json();
-
-        console.log("Overdue API:", result);
-
-        let data = [];
-
-        
-        if (Array.isArray(result.data)) {
-            data = result.data;
-        } else {
-            console.error("Unexpected format:", result);
-        }
-
-        const table = document.querySelector("#overdueTable tbody");
-
-        if (!table) {
-            console.error("Table body not found!");
-            return;
-        }
-
-        table.innerHTML = "";
-
-        data.forEach(item => {
-
-    let color = "lightgreen";
-    if (item.days_overdue > 20) color = "#ffcccc";
-    else if (item.days_overdue > 10) color = "#fff3cd";
-
-    const client = item.client || "N/A";
-    const amount = item.amount_due ?? "N/A";
-    const risk = item.days_overdue > 20 ? "High"
-               : item.days_overdue > 10 ? "Medium"
-               : "Low";
-
-    const row = `
-        <tr style="background:${color}">
-            <td>${client}</td>
-            <td>${amount}</td>
-            <td>${risk}</td>
-        </tr>
-    `;
-    table.innerHTML += row;
-});
+        const riskTable = document.querySelector("#riskTable tbody");
+        riskTable.innerHTML = "";
+        riskRows.forEach((item) => {
+            const row = `
+              <tr>
+                <td>${item.client || "N/A"}</td>
+                <td>${item.risk_level || "N/A"}</td>
+                <td>${item.reason || "N/A"}</td>
+              </tr>
+            `;
+            riskTable.innerHTML += row;
+        });
 
     } catch (err) {
-        console.error("Overdue error:", err);
+        console.error("Overdue/risk error:", err);
     }
 }
 
-loadOverdue();
+(async function init(){
+  await loadConfig();
+  ensureApiKey();
+  await loadOverdueAndRisk();
+})();
 </script>
 
 </body>

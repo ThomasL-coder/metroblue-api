@@ -8,40 +8,89 @@
 
 <h2>Revenue Forecast</h2>
 
-<canvas id="chart" width="600" height="300"></canvas>
+<canvas id="chart" width="700" height="320"></canvas>
 
 <script defer>
-const API_URL = "http://127.0.0.1:8000";
-const API_KEY = "secret123";
+let API_URL = "http://127.0.0.1:8000";
+let API_KEY = sessionStorage.getItem("metroblue_api_key") || "";
+
+async function loadConfig() {
+  try {
+    const res = await fetch(`${API_URL}/api/config`);
+    const result = await res.json();
+    if (result?.data?.api_url) API_URL = result.data.api_url;
+  } catch (err) {
+    console.warn("Config endpoint unavailable, using defaults.");
+  }
+}
+
+function ensureApiKey() {
+  if (!API_KEY) {
+    API_KEY = window.prompt("Enter API key for MetroBlue dashboard:", "") || "";
+    sessionStorage.setItem("metroblue_api_key", API_KEY);
+  }
+}
 
 async function loadChart() {
     try {
-        const res = await fetch(`${API_URL}/api/revenue/forecast?months=6`, {
-            headers: {
-                "X-API-KEY": API_KEY
-            }
+        const res = await fetch(`${API_URL}/api/revenue/forecast?months=6&history_months=6`, {
+            headers: { "X-API-KEY": API_KEY }
         });
 
         const result = await res.json();
-        console.log("Forecast API:", result);
+        const history = result?.data?.history || [];
+        const forecast = result?.data?.forecast || [];
 
-        let data = [];
+        const labels = [
+          ...history.map(d => d.month),
+          ...forecast.map(d => d.month)
+        ];
 
-        if (result.data && Array.isArray(result.data.results)) {
-            data = result.data.results;
-        }
-
-        const labels = data.map(d => d.month || d.date || "N/A");
-        const values = data.map(d => d.value || d.revenue || 0);
+        const historyValues = history.map(d => d.revenue);
+        const forecastValues = [
+          ...new Array(history.length).fill(null),
+          ...forecast.map(d => d.predicted_revenue)
+        ];
+        const upperBand = [
+          ...new Array(history.length).fill(null),
+          ...forecast.map(d => d.upper_bound)
+        ];
+        const lowerBand = [
+          ...new Array(history.length).fill(null),
+          ...forecast.map(d => d.lower_bound)
+        ];
 
         new Chart(document.getElementById("chart"), {
             type: "line",
             data: {
-                labels: labels,
-                datasets: [{
-                    label: "Revenue Forecast",
-                    data: values
-                }]
+                labels,
+                datasets: [
+                  {
+                    label: "Historical Revenue",
+                    data: [...historyValues, ...new Array(forecast.length).fill(null)],
+                    borderColor: "#0d6efd"
+                  },
+                  {
+                    label: "Forecast",
+                    data: forecastValues,
+                    borderColor: "#198754",
+                    borderDash: [6, 4]
+                  },
+                  {
+                    label: "Upper Bound",
+                    data: upperBand,
+                    borderColor: "rgba(25, 135, 84, 0.25)",
+                    pointRadius: 0
+                  },
+                  {
+                    label: "Prediction Interval",
+                    data: lowerBand,
+                    borderColor: "rgba(25, 135, 84, 0.25)",
+                    backgroundColor: "rgba(25, 135, 84, 0.12)",
+                    fill: '-1',
+                    pointRadius: 0
+                  }
+                ]
             }
         });
 
@@ -50,7 +99,11 @@ async function loadChart() {
     }
 }
 
-loadChart();
+(async function init(){
+  await loadConfig();
+  ensureApiKey();
+  await loadChart();
+})();
 </script>
 
 </body>

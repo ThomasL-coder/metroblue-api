@@ -2,7 +2,7 @@
 import pandas as pd
 from sqlalchemy import text
 
-from app.db import engine
+from Project.app.db import engine
 
 
 DEFAULT_QUERY = """
