@@ -3,9 +3,9 @@ from lead_scoring.predict import score_lead
 
 def test_hot_lead():
     lead = {
-        "source": "Facebook",
+        "source": "Google",
         "course_service": "IELTS",
-        "gender": "Male",
+        "gender": "Female",
         "location": "Darwin"
     }
 
