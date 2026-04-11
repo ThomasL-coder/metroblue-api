@@ -1,8 +1,8 @@
-
 from fastapi import FastAPI
 from pydantic import BaseModel
 
 from lead_scoring import score_lead
+from revenue_forecasting.forecast import forecast_revenue   #Intern B (dummy)
 
 
 app = FastAPI(title="Lead Scoring API")
@@ -29,3 +29,9 @@ def home():
 @app.post("/api/leads/score")
 def score(payload: LeadInput):
     return score_lead(payload.model_dump())
+
+
+# Intern B dummy endpoint
+@app.get("/api/revenue/forecast")
+def revenue(months: int = 3):
+    return forecast_revenue(months)
