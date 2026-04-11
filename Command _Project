@@ -1,0 +1,49 @@
+ Command: 
+
+1. Go to project folder
+cd project
+
+2. Create virtual environment
+python -m venv venv
+
+3. Activate it:
+
+Windows:
+
+venv\Scripts\activate
+
+Mac/Linux:
+
+source venv/bin/activate
+
+4. Install all dependencies
+pip install -r requirements.txt
+
+5. Set database connection:
+
+Windows (PowerShell):
+
+$env:DATABASE_URL="mysql+pymysql://user:password@localhost:3306/metroblue"
+
+Mac/Linux:
+export DATABASE_URL="mysql+pymysql://user:password@localhost:3306/metroblue"
+
+6. Train the model (Intern A)
+python lead_scoring/train.py
+
+7. Run the API (Intern C)
+uvicorn main:app --reload
+
+8. Test in browser
+Swagger UI 
+http://127.0.0.1:8000
+
+Lead scoring API:
+http://127.0.0.1:8000/docs
+Use POST /api/leads/score
+
+Revenue (Intern B dummy):
+http://127.0.0.1:8000/api/revenue/forecast
+
+9.Run tests
+pytest
