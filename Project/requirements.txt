@@ -1,1 +1,8 @@
 
+fastapi
+uvicorn
+pandas
+scikit-learn
+sqlalchemy
+pymysql
+joblib
