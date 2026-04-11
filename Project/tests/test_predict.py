@@ -11,8 +11,10 @@ def test_hot_lead():
 
     result = score_lead(lead)
 
+    assert isinstance(result, dict)
     assert "score" in result
     assert "label" in result
+    assert result["label"] in ["Cold", "Warm", "Hot"]
 
 
 def test_cold_lead():
@@ -20,16 +22,23 @@ def test_cold_lead():
 
     result = score_lead(lead)
 
+    assert isinstance(result, dict)
     assert "score" in result
+    assert "label" in result
     assert result["label"] in ["Cold", "Warm", "Hot"]
 
 
 def test_missing_fields():
     lead = {
         "source": None,
-        "course_service": None
+        "course_service": None,
+        "gender": None,
+        "location": None
     }
 
     result = score_lead(lead)
 
     assert isinstance(result, dict)
+    assert "score" in result
+    assert "label" in result
+    assert result["label"] in ["Cold", "Warm", "Hot"]
