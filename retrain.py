@@ -1,13 +1,7 @@
-import time
+from Project.lead_scoring.train import main as train_lead_model
 
-print("Retraining models...")
 
-# simulate long training
-time.sleep(3)
-
-print("Lead model trained")
-time.sleep(2)
-
-print("Revenue model trained")
-
-print("Retraining completed")
+if __name__ == "__main__":
+    print("Retraining lead scoring model...")
+    train_lead_model()
+    print("Retraining completed")
